@@ -24,6 +24,7 @@
 }
 
 - (void) changeConnectionState: (int) state;
+- (void) myUpdateTime;
 - (BOOL)loginItemExists;
 - (BOOL)toggleLoginItem;
 

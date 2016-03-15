@@ -171,7 +171,7 @@ int64_t ustime(void) {
     [[NSRunLoop mainRunLoop] addTimer:[NSTimer timerWithTimeInterval:0.1 invocation:invocation repeats:YES] forMode:NSRunLoopCommonModes];
 
     myMenu = [[NSMenu alloc] initWithTitle:@"Menu Title"];
-    NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@"Quit Icon Ping" action:@selector(exitAction) keyEquivalent:@"q"];
+    NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@"Quit Icon Ping" action:@selector(exitAction) keyEquivalent:@""];
     [menuItem setEnabled:YES];
   
     statusMenuItem = [[NSMenuItem alloc] initWithTitle:@"..." action:nil keyEquivalent:@""];
@@ -205,6 +205,10 @@ int64_t ustime(void) {
     lasttime=ustime();
 }
 
+- (void) myUpdateTime {
+    NSString *result=[NSString stringWithFormat:@"%lli seconds",(ustime()-lasttime)/1000000];
+    [timingMenuItem setTitle:result];
+}
 - (void) timerHandler: (NSTimer *) t
 {
     static long clicks = -1;
@@ -228,16 +232,16 @@ int64_t ustime(void) {
     } else {
         state = CONN_STATE_SLOW;
     }
-    NSString *result=[NSString stringWithFormat:@"%lli seconds",(ustime()-lasttime)/1000000];
-    [timingMenuItem setTitle:result];
+    [self myUpdateTime];
     if (state != connection_state) {
         [self changeConnectionState: state];
     }
 }
-
 - (void) changeConnectionState: (int) state
 {
-    lasttime=ustime();
+    if((connection_state == 0 && state!=0) || (connection_state!=0 && state==0)){
+        lasttime=ustime();
+    }
     if (state == CONN_STATE_KO) {
         [myStatusItem setImage:myStatusImageKO];
         [statusMenuItem setTitle:@"No Connection!"];
