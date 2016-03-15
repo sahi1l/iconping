@@ -206,7 +206,15 @@ int64_t ustime(void) {
 }
 
 - (void) myUpdateTime {
-    NSString *result=[NSString stringWithFormat:@"%lli seconds",(ustime()-lasttime)/1000000];
+    int64_t up=(ustime()-lasttime)/1000000;
+    NSString *result=@"";
+    if(up<=120) {
+        result=[NSString stringWithFormat:@"%lli seconds",up];
+    } else if (up<=7200) {
+        result=[NSString stringWithFormat:@"%lli minutes",up/60];
+    } else {
+        result=[NSString stringWithFormat:@"%lli hours",up/3600];
+    }
     [timingMenuItem setTitle:result];
 }
 - (void) timerHandler: (NSTimer *) t
