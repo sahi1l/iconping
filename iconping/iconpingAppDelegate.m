@@ -134,10 +134,10 @@ int64_t ustime(void) {
     int icmpoff;
     
     if (nread <= 0) return;
-    NSLog(@"Received ICMP %d bytes\n", (int)nread);
+ //   NSLog(@"Received ICMP %d bytes\n", (int)nread);
     
     icmpoff = (packet[0]&0x0f)*4;
-    NSLog(@"ICMP offset: %d\n", icmpoff);
+//    NSLog(@"ICMP offset: %d\n", icmpoff);
     
     /* Don't process malformed packets. */
     if (nread < (icmpoff + (signed)sizeof(struct ICMPHeader))) return;
@@ -150,7 +150,7 @@ int64_t ustime(void) {
         return;
     }
     
-    NSLog(@"OK received an ICMP packet that matches!\n");
+//    NSLog(@"OK received an ICMP packet that matches!\n");
     if (reply->sentTime > last_received_time) {
         last_rtt = (int)(ustime()-reply->sentTime)/1000;
         last_received_time = reply->sentTime;
@@ -176,12 +176,15 @@ int64_t ustime(void) {
   
     statusMenuItem = [[NSMenuItem alloc] initWithTitle:@"..." action:nil keyEquivalent:@""];
     [statusMenuItem setEnabled:NO];
+    timingMenuItem = [[NSMenuItem alloc] initWithTitle:@"..." action:nil keyEquivalent:@""];
+    [timingMenuItem setEnabled:NO];
     
     openAtStartupMenuItem = [[NSMenuItem alloc] initWithTitle:@"Open at startup" action:@selector(toggleStartupAction) keyEquivalent:@""];
     [openAtStartupMenuItem setEnabled:YES];
     if ([self loginItemExists]) [openAtStartupMenuItem setState:NSOnState];
     
     [myMenu addItem: statusMenuItem];
+    [myMenu addItem: timingMenuItem];
     [myMenu addItem: openAtStartupMenuItem];
     [myMenu addItem: menuItem];
 
@@ -199,6 +202,7 @@ int64_t ustime(void) {
     last_rtt = 0;
     icmp_id = random()&0xffff;
     icmp_seq = random()&0xffff;
+    lasttime=ustime();
 }
 
 - (void) timerHandler: (NSTimer *) t
@@ -209,7 +213,7 @@ int64_t ustime(void) {
     
     clicks++;
     if ((clicks % 10) == 0) {
-        NSLog(@"Sending ping\n");
+//        NSLog(@"Sending ping\n");
         
         [self sendPingwithId:icmp_id andSeq: icmp_seq];
     }
@@ -224,6 +228,8 @@ int64_t ustime(void) {
     } else {
         state = CONN_STATE_SLOW;
     }
+    NSString *result=[NSString stringWithFormat:@"%lli seconds",(ustime()-lasttime)/1000000];
+    [timingMenuItem setTitle:result];
     if (state != connection_state) {
         [self changeConnectionState: state];
     }
@@ -231,6 +237,7 @@ int64_t ustime(void) {
 
 - (void) changeConnectionState: (int) state
 {
+    lasttime=ustime();
     if (state == CONN_STATE_KO) {
         [myStatusItem setImage:myStatusImageKO];
         [statusMenuItem setTitle:@"No Connection!"];

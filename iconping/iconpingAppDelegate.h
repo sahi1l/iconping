@@ -13,13 +13,14 @@
     NSStatusItem *myStatusItem;
     NSImage *myStatusImageOK, *myStatusImageSLOW, *myStatusImageKO;
     NSMenu *myMenu;
-    NSMenuItem *statusMenuItem, *openAtStartupMenuItem;
+    NSMenuItem *statusMenuItem, *timingMenuItem, *openAtStartupMenuItem;
     uint16_t icmp_id;
     uint16_t icmp_seq;
     int64_t last_received_time;
     int last_rtt;
     int icmp_socket;
     int connection_state;
+    int64_t lasttime;
 }
 
 - (void) changeConnectionState: (int) state;
